@@ -1,0 +1,157 @@
+CRUD stands for Create, Read, Update, and Delete, which are the basic operations performed on data in most databases, including MongoDB.
+
+1. Create (Insert) Operation:
+const { MongoClient } = require('mongodb');
+
+// Connection URI
+const uri = 'mongodb://localhost:27017';
+
+// Database Name
+const dbName = 'mydatabase';
+
+// Create a new MongoClient
+const client = new MongoClient(uri);
+
+async function insertDocument() {
+    try {
+        await client.connect();
+
+        const database = client.db(dbName);
+        const collection = database.collection('users');
+
+        // Insert one document
+        const result = await collection.insertOne({
+            name: 'John Doe',
+            age: 30,
+            email: 'john.doe@example.com'
+        });
+
+        console.log('Document inserted with id:', result.insertedId);
+    } finally {
+        await client.close();
+    }
+}
+
+insertDocument();
+
+
+2. Read (Retrieve) Operation:
+
+async function findDocuments() {
+    try {
+        await client.connect();
+
+        const database = client.db(dbName);
+        const collection = database.collection('users');
+
+        // Find all documents
+        const cursor = collection.find();
+
+        await cursor.forEach(doc => {
+            console.log(doc);
+        });
+    } finally {
+        await client.close();
+    }
+}
+
+findDocuments();
+
+3. Update Operation:
+
+async function updateDocument() {
+    try {
+        await client.connect();
+
+        const database = client.db(dbName);
+        const collection = database.collection('users');
+
+        // Update one document
+        const result = await collection.updateOne(
+            { name: 'John Doe' },
+            { $set: { age: 35 } }
+        );
+
+        console.log('Document updated:', result.modifiedCount);
+    } finally {
+        await client.close();
+    }
+}
+
+updateDocument();
+
+4. Delete Operation:
+
+async function deleteDocument() {
+    try {
+        await client.connect();
+
+        const database = client.db(dbName);
+        const collection = database.collection('users');
+
+        // Delete one document
+        const result = await collection.deleteOne({ name: 'John Doe' });
+
+        console.log('Document deleted:', result.deletedCount);
+    } finally {
+        await client.close();
+    }
+}
+
+deleteDocument();
+
+
+Indexes:
+Indexes in MongoDB are data structures that store a small amount of data about the documents in a collection. They help improve query performance by efficiently locating documents in a collection.
+
+Example:
+// Creating an index on the 'name' field of the 'users' collection
+db.users.createIndex({ name: 1 });
+
+
+Aggregation Framework:
+The Aggregation Framework in MongoDB is a powerful tool for performing data aggregation operations. It allows you to process data records and return computed results such as averages, sums, and counts.
+
+Example:
+// Aggregating documents in the 'sales' collection to calculate total revenue per product
+db.sales.aggregate([
+    { $group: { _id: "$product", totalRevenue: { $sum: "$amount" } } }
+]);
+
+
+Replication:
+Replication in MongoDB involves maintaining multiple copies of data across different servers to ensure high availability and data redundancy. It provides automatic failover and data recovery in case of server failures.
+Example:
+# Configure MongoDB replica set
+rs.initiate();
+rs.add("mongodb1.example.com");
+rs.add("mongodb2.example.com");
+
+Sharding:
+Sharding is the process of distributing data across multiple servers to handle large data sets and high throughput. It horizontally partitions data into smaller chunks called shards, which are distributed across different servers.
+
+Example:
+// Enable sharding on a database
+sh.enableSharding("mydatabase");
+
+// Shard a collection based on a specific field
+sh.shardCollection("mydatabase.myCollection", { "shardingKey": 1 });
+
+Transactions:
+MongoDB supports multi-document transactions for operations on multiple documents within a single database. Transactions ensure data consistency and integrity across multiple documents.
+
+Example:
+// Start a session and begin a transaction
+session.startTransaction();
+
+try {
+    // Perform multiple operations within the transaction
+    db.collection1.insertOne({ _id: 1, name: "Document 1" });
+    db.collection2.deleteOne({ _id: 2 });
+    
+    // Commit the transaction
+    session.commitTransaction();
+} catch (error) {
+    // Abort the transaction if any operation fails
+    session.abortTransaction();
+}
